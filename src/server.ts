@@ -76,27 +76,32 @@ function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse
   }
 }
 
-// // Function to handle PUT requests
-// function handlePutRequest(req: http.IncomingMessage, res: http.ServerResponse) {
-//   const { pathname } = parse(req.url || '', true);
-//   const id = parseInt((pathname || '').split('/')[2]);
-//   let body = '';
-//   req.on('data', (chunk) => {
-//     body += chunk.toString();
-//   });
-//   req.on('end', () => {
-//     const updatedItem = JSON.parse(body);
-//     const index = database.findIndex((item) => item.id === id);
-//     if (index !== -1) {
-//       database[index] = { ...database[index], ...updatedItem };
-//       res.writeHead(200, { 'Content-Type': 'application/json' });
-//       res.end(JSON.stringify(database[index]));
-//     } else {
-//       res.writeHead(404, { 'Content-Type': 'application/json' });
-//       res.end(JSON.stringify({ message: 'Item not found' }));
-//     }
-//   });
-// }
+// PUT requests
+function handlePutRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+  const { pathname } = parse(req.url || '', true);
+  const id = (pathname || '').split('/')[3];
+  let body = '';
+  req.on('data', (chunk) => {
+    body += chunk.toString();
+  });
+  req.on('end', () => {
+    const updatedItem = JSON.parse(body);
+    const index = database.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      if (isUUID(id)) {
+        database[index] = { ...database[index], ...updatedItem };
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(database[index]));
+      } else {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'User Id is invalid (not uuid)' }));
+      }
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'User with provided id does not exist' }));
+    }
+  });
+}
 
 // DELETE requests 
 function handleDeleteRequest(req: http.IncomingMessage, res: http.ServerResponse) {
@@ -121,23 +126,27 @@ function handleDeleteRequest(req: http.IncomingMessage, res: http.ServerResponse
 dotenv.config();
 
 const server = http.createServer((req, res) => {
-  const { pathname } = parse(req.url || '', true);
-  console.log(pathname, ' - ', req.method);
-  if (req.method === 'GET' && pathname === '/api/users') {
-    handleGetAllRequest(res); 
-  } else if (req.method === 'GET' && pathname && pathname.startsWith('/api/users/')) {
-    handleGetOneRequest(req, res);
-  } else if (req.method === 'POST' && pathname === '/api/users') {
-    handlePostRequest(req, res);
-  }
-  // else if (req.method === 'PUT' && pathname && pathname.startsWith('/api/users/')) {
-  //   handlePutRequest(req, res);
-  else if (req.method === 'DELETE' && pathname && pathname.startsWith('/api/users/')) {
-    handleDeleteRequest(req, res);
-  } 
-  else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Not Found' }));
+  try {
+    const { pathname } = parse(req.url || '', true);
+    if (req.method === 'GET' && pathname === '/api/users') {
+      handleGetAllRequest(res); 
+    } else if (req.method === 'GET' && pathname && pathname.startsWith('/api/users/')) {
+      handleGetOneRequest(req, res);
+    } else if (req.method === 'POST' && pathname === '/api/users') {
+      handlePostRequest(req, res);
+    }
+    else if (req.method === 'PUT' && pathname && pathname.startsWith('/api/users/')) {
+      handlePutRequest(req, res); }
+    else if (req.method === 'DELETE' && pathname && pathname.startsWith('/api/users/')) {
+      handleDeleteRequest(req, res);
+    } 
+    else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Not Found' }));
+    }
+    throw Error('500: Internal server error');
+  } catch (err) {
+    console.log((err as Error).message);
   }
 });
 
