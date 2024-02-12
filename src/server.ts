@@ -2,22 +2,10 @@ import * as http from 'http';
 import dotenv from 'dotenv';
 import { parse } from 'url';
 import { v4 as uuid } from 'uuid';
+import { User } from './types';
 
 
-let database = [
-  {
-      id: "1",
-      username: "Kot Kotovich",
-      age: 10,
-      hobbies: ["eat", "sleep"]
-  },
-  {
-      id: "2",
-      username: "Pes Psovich",
-      age: 5,
-      hobbies: ["walk", "chew your shoes"]
-  }
-  ];
+let database: User[] = [];
 
 function isUUID( uuid: string ) {
   let s = uuid;
@@ -28,7 +16,7 @@ function isUUID( uuid: string ) {
 }
 
 // POST requests 
-function handlePostRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+export function handlePostRequest(req: http.IncomingMessage, res: http.ServerResponse) {
   let body = '';
   req.on('data', (chunk) => {
     body += chunk.toString();
@@ -48,13 +36,13 @@ function handlePostRequest(req: http.IncomingMessage, res: http.ServerResponse) 
 }
 
 // GET-all requests 
-function handleGetAllRequest(res: http.ServerResponse) {
+export function handleGetAllRequest(res: http.ServerResponse) {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(database));
 }
 
 // GET requests 
-function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+export function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse) {
   const { pathname } = parse(req.url || '', true);
   const id = (pathname || '').split('/')[3];
   const item = database.find((item) => item.id === id);
@@ -73,7 +61,7 @@ function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse
 }
 
 // PUT requests
-function handlePutRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+export function handlePutRequest(req: http.IncomingMessage, res: http.ServerResponse) {
   const { pathname } = parse(req.url || '', true);
   const id = (pathname || '').split('/')[3];
   let body = '';
@@ -100,7 +88,7 @@ function handlePutRequest(req: http.IncomingMessage, res: http.ServerResponse) {
 }
 
 // DELETE requests 
-function handleDeleteRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+export function handleDeleteRequest(req: http.IncomingMessage, res: http.ServerResponse) {
   const { pathname } = parse(req.url || '', true);
   const id = (pathname || '').split('/')[3];
   const index = database.findIndex((item) => item.id === id);

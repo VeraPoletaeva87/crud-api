@@ -20,3 +20,5 @@ Run in terminal: curl -X PUT -H "Content-Type: application/json" -d '{"username"
 
 
 To check error handling you can: comment code in server.ts file inside createServer function inside try block and uncomment throw new Error(); line. It will emulate internal server error
+
+Run: npm run test to test api
