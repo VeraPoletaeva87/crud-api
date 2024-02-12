@@ -3,20 +3,25 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
-  "type": "module",
   "scripts": {
-    "start": "node --loader ts-node/esm src/server.ts"
+    "start:dev": "nodemon --exec ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "start:prod": "webpack && node ./dist/bundle.js"
   },
   "author": "Vera Poletaeva",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.11.17"
+    "@types/node": "^20.11.17",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "@types/uuid": "^9.0.8",
     "dotenv": "^16.4.2",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3",
-    "uuid": "^9.0.1"
+    "nodemon": "^3.0.3",
+    "uuid": "^9.0.1",
+    "webpack": "^5.90.1"
   }
 }

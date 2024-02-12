@@ -4,7 +4,7 @@ import { parse } from 'url';
 import { v4 as uuid } from 'uuid';
 
 
-let database: any[] = [
+let database = [
   {
       id: "1",
       username: "Kot Kotovich",
@@ -18,10 +18,6 @@ let database: any[] = [
       hobbies: ["walk", "chew your shoes"]
   }
   ];
-
-function generateId(): string {
-  return uuid();
-}
 
 function isUUID( uuid: string ) {
   let s = uuid;
@@ -40,7 +36,7 @@ function handlePostRequest(req: http.IncomingMessage, res: http.ServerResponse) 
   req.on('end', () => {
     const newItem = JSON.parse(body);
     if (newItem?.username && newItem?.age && newItem?.hobbies) {
-      newItem.id = generateId();
+      newItem.id = uuid();
       database.push(newItem);
       res.writeHead(201, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(newItem));
