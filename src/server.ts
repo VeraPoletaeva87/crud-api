@@ -1,6 +1,8 @@
 import * as http from 'http';
+import dotenv from 'dotenv';
 import { parse } from 'url';
 import { v4 as uuid } from 'uuid';
+
 
 let database: any[] = [
   {
@@ -60,7 +62,6 @@ function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse
   const { pathname } = parse(req.url || '', true);
   const id = (pathname || '').split('/')[3];
   const item = database.find((item) => item.id === id);
-  console.log(item, '-', id, '-', pathname);
   if (item) {
     if (isUUID(item.id)) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -97,23 +98,31 @@ function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse
 //   });
 // }
 
-// // Function to handle DELETE requests 
-// function handleDeleteRequest(req: http.IncomingMessage, res: http.ServerResponse) {
-//   const { pathname } = parse(req.url || '', true);
-//   const id = parseInt((pathname || '').split('/')[2]);
-//   const index = database.findIndex((item) => item.id === id);
-//   if (index !== -1) {
-//     database.splice(index, 1);
-//     res.writeHead(204);
-//     res.end();
-//   } else {
-//     res.writeHead(404, { 'Content-Type': 'application/json' });
-//     res.end(JSON.stringify({ message: 'Item not found' }));
-//   }
-// }
+// DELETE requests 
+function handleDeleteRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+  const { pathname } = parse(req.url || '', true);
+  const id = (pathname || '').split('/')[3];
+  const index = database.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    if (isUUID(id)) {
+      database.splice(index, 1);
+    res.writeHead(204);
+    res.end();
+    } else {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'User Id is invalid (not uuid)' }));
+    }
+    
+  } else {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'User with provided id does not exist' }));
+  }
+}
+dotenv.config();
 
 const server = http.createServer((req, res) => {
   const { pathname } = parse(req.url || '', true);
+  console.log(pathname, ' - ', req.method);
   if (req.method === 'GET' && pathname === '/api/users') {
     handleGetAllRequest(res); 
   } else if (req.method === 'GET' && pathname && pathname.startsWith('/api/users/')) {
@@ -123,9 +132,9 @@ const server = http.createServer((req, res) => {
   }
   // else if (req.method === 'PUT' && pathname && pathname.startsWith('/api/users/')) {
   //   handlePutRequest(req, res);
-  // } else if (req.method === 'DELETE' && pathname && pathname.startsWith('/api/users/')) {
-  //   handleDeleteRequest(req, res);
-  // } 
+  else if (req.method === 'DELETE' && pathname && pathname.startsWith('/api/users/')) {
+    handleDeleteRequest(req, res);
+  } 
   else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ message: 'Not Found' }));

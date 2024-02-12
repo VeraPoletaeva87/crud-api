@@ -1,5 +1,12 @@
 To install dependencies run command: npm install
+
 To start application run command: npm run start
+
 Open https://localhost:4000/api/users in browser
-Open https://localhost:4000/api/users/1 to get data for one specified user
+
+Open https://localhost:4000/api/users/1 to get data for one specified user (define correct id of user that you want to get)
+
 Run in terminal curl -X POST -H "Content-Type: application/json" -d '{"username":"Lisichka","age":"5", "hobbies":["sit", "drink"]}' http://localhost:4000/api/users to add new user
+
+To delete item: 
+Run in terminal: curl -X "DELETE" 'http://localhost:4000/api/users/dcf5f1db-e8c3-4199-9343-130df61a9c96' - define correct id of user that you want to delete
