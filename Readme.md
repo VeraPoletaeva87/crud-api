@@ -17,3 +17,6 @@ Run in terminal: curl -X "DELETE" 'http://localhost:4000/api/users/dcf5f1db-e8c3
 
 To edit item: 
 Run in terminal: curl -X PUT -H "Content-Type: application/json" -d '{"username": "lisa", "age":"16", "hobbies":["sit", "drink"]}' http://localhost:4000/api/users/dac56084-24e7-4f68-bf35-a3b422606d25 - define correct id of user that you want to delete and fields that you want to edit
+
+
+To check error handling you can: comment code in server.ts file inside createServer function inside try block and uncomment throw new Error(); line. It will emulate internal server error

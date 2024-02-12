@@ -140,9 +140,11 @@ const server = http.createServer((req, res) => {
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ message: 'Not Found' }));
     }
-    throw Error('500: Internal server error');
+   //throw new Error();
   } catch (err) {
-    console.log((err as Error).message);
+    console.error('Error occurred:', err);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Internal Server Error' }));
   }
 });
 
