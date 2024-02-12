@@ -1,5 +1,6 @@
 import * as http from 'http';
 import { parse } from 'url';
+import { v4 as uuid } from 'uuid';
 
 let database: any[] = [
   {
@@ -15,13 +16,17 @@ let database: any[] = [
       hobbies: ["walk", "chew your shoes"]
   }
   ];
-// const dir = dirname(fileURLToPath(import.meta.url));
-// const fileName = join(dir, 'data.json');
-// const text = await readFile(fileName, 'utf8');
-// database = JSON.parse(text);
 
 function generateId(): string {
-  return Math.floor(Math.random() * 1000).toString();
+  return uuid();
+}
+
+function isUUID( uuid: string ) {
+  let s = uuid;
+  if (s.match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') === null) {
+    return false;
+  }
+  return true;
 }
 
 // POST requests 
@@ -32,10 +37,15 @@ function handlePostRequest(req: http.IncomingMessage, res: http.ServerResponse) 
   });
   req.on('end', () => {
     const newItem = JSON.parse(body);
-    newItem.id = generateId();
-    database.push(newItem);
-    res.writeHead(201, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(newItem));
+    if (newItem?.username && newItem?.age && newItem?.hobbies) {
+      newItem.id = generateId();
+      database.push(newItem);
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(newItem));
+    } else {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Input item does not contain required fields' }));
+    }
   });
 }
 
@@ -52,11 +62,16 @@ function handleGetOneRequest(req: http.IncomingMessage, res: http.ServerResponse
   const item = database.find((item) => item.id === id);
   console.log(item, '-', id, '-', pathname);
   if (item) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(item));
+    if (isUUID(item.id)) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(item));
+    } else {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'User Id is invalid (not uuid)' }));
+    }
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Item not found' }));
+    res.end(JSON.stringify({ message: 'User does not exist' }));
   }
 }
 
